@@ -4,14 +4,16 @@
 // except for 'app' ones, which are in a sibling
 // directory.
 requirejs.config({
-    
+
     paths: {
         scripts:'scripts',
         jquery:'node_modules/jquery/dist/jquery.min',
         cytoscape:'node_modules/cytoscape/dist/cytoscape',
         Node:'scripts/models/Node',
         WikiService:'scripts/services/wikiservice',
-        panzoom:'node_modules/cytoscape-panzoom/cytoscape-panzoom'
+        panzoom:'node_modules/cytoscape-panzoom/cytoscape-panzoom',
+        radialservice:'scripts/services/radialservice',
+        search:'node_modules/searchjs/lib/searchjs'
     }
 });
 
