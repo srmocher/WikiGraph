@@ -11,9 +11,10 @@ requirejs.config({
         cytoscape:'node_modules/cytoscape/dist/cytoscape',
         Node:'scripts/models/Node',
         WikiService:'scripts/services/wikiservice',
-        panzoom:'node_modules/cytoscape-panzoom/cytoscape-panzoom',
+        'cytoscape-panzoom':'node_modules/cytoscape-panzoom/cytoscape-panzoom',
         radialservice:'scripts/services/radialservice',
-        search:'node_modules/searchjs/lib/searchjs'
+        search:'node_modules/searchjs/lib/searchjs',
+        'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip'
     }
 });
 

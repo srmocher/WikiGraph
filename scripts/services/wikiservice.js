@@ -1,5 +1,5 @@
 define(['jquery'],function($){
-    var getSubCats = function(title){
+    var getSubcats = function(title){
         return $.ajax('http://en.wikipedia.org/w/api.php?action=query&format=json&list=categorymembers&cmtype=subcat&cmtitle=Category:' + title + '&cmlimit=50&origin=*');
     };
 
@@ -8,7 +8,7 @@ define(['jquery'],function($){
     };
 
     return{
-        getSubcats:getSubCats,
+        getSubcats:getSubcats,
         getArticles:getArticles
     };
 })

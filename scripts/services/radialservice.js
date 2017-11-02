@@ -26,7 +26,7 @@ define(function(){
             return positions;
    };
 
-   var moveNodeAlongDiameter = function (point,parentPos) {
+   var moveNodeAlongDiameter = function (point,parentPos,radius) {
             var x  = point.x;
             var slope = (point.y - parentPos.y)/(point.x - parentPos.x);
            if(point.x > parentPos.x)
@@ -54,8 +54,40 @@ define(function(){
            return newPos;
         };
 
+   var addSubcatsToGraph = function(data,parent,radius){
+      var members = data.query.categorymembers;
+      var parentPos = parent.position();
+      var positions = generatePositions(parentPos.x,parentPos.y,members.length,radius);
+      var elements = [];
+      for(var i=0;i<members.length;i++){
+        var id = members[i]['pageid'];
+        var title = members[i]['title'].substring(9);
+        var node = {
+          group:'nodes',
+          data:{
+            id:id,
+            title:title,
+            parentId:parent.id()
+          },
+          position:positions[i]
+
+        };
+      //  console.log(node);
+        var edge = {
+          group:'edges',
+          data:{
+            source:parent.id(),
+            target:id
+          }
+        }
+        elements.push(node);
+        elements.push(edge);
+      }
+      cy.add(elements);
+   }
   return {
     generatePositions:generatePositions,
-    moveNodeAlongDiameter:moveNodeAlongDiameter
+    moveNodeAlongDiameter:moveNodeAlongDiameter,
+    addSubcatsToGraph:addSubcatsToGraph
   }
 })
