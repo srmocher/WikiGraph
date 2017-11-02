@@ -14,7 +14,8 @@ requirejs.config({
         'cytoscape-panzoom':'node_modules/cytoscape-panzoom/cytoscape-panzoom',
         radialservice:'scripts/services/radialservice',
         search:'node_modules/searchjs/lib/searchjs',
-        'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip'
+        'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip',
+        'lerp':'node_modules/lerp/index'
     }
 });
 

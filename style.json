@@ -12,7 +12,7 @@
       "font-size": "12px",
       "text-valign": "center",
       "text-halign": "center",
-      "background-color": "#555",
+      "background-color": "#87CEEB",
       "text-outline-color": "#555",
       "text-outline-width": "2px",
       "color": "#fff",
@@ -51,8 +51,8 @@
     "selector": "edge",
     "style": {
 
-      "opacity": "0.8",
-      "line-color": "#bbb",
+      "opacity": "0.5",
+      "line-color": "#FF91A4",
       "width": "mapData(weight, 0, 1, 1, 8)",
       "overlay-padding": "3px",
       "curve-style": "bezier",

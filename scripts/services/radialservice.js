@@ -35,7 +35,7 @@ define(function(){
            }
            else if(point.x < parentPos.x)
            {
-                    x = parentPos.y - (4*radius)/(Math.sqrt(1+slope*slope));
+                    x = parentPos.x - (4*radius)/(Math.sqrt(1+slope*slope));
            }
 
             var y = point.y;
@@ -61,6 +61,7 @@ define(function(){
       var elements = [];
       for(var i=0;i<members.length;i++){
         var id = members[i]['pageid'];
+        var nodeExists = cy.$('#'+id).length>0;
         var title = members[i]['title'].substring(9);
         var node = {
           group:'nodes',
@@ -80,7 +81,8 @@ define(function(){
             target:id
           }
         }
-        elements.push(node);
+        if(!nodeExists)
+          elements.push(node);
         elements.push(edge);
       }
       cy.add(elements);

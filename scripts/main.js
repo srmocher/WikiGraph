@@ -24,7 +24,8 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         group: 'nodes',
         data: {
           id: 692915,
-          title: 'Astronomy'
+          title: 'Astronomy',
+          expanded: false
         },
         position: rootPos,
         color: COLORS.ARTICLE,
@@ -42,8 +43,7 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         }),
         layout: {
           name: 'preset'
-        },
-        zoom: 0.1
+        }
       });
 
       var defaults = {
@@ -75,9 +75,28 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       cy.panzoom(defaults);
       window.cy = cy;
 
-      cy.on('click', 'node', function(event) {
+      cy.style().selector('node')
+        .style({
+          'width': function(ele) {
+            if (ele.degree() == 0)
+              return 35;
+            if (ele.degree() < 5)
+              return 15 * ele.degree();
+            return 2.5 * ele.degree();
+          },
+          'height': function(ele) {
+            if (ele.degree() == 0)
+              return 35;
+            if (ele.degree() < 5)
+              return 15 * ele.degree();
+            return 2.5 * ele.degree();
+          }
+        }).update();
+      cy.on('mousedown', 'node', function(event) {
         cy.zoomingEnabled(true);
         var node = event.target;
+        if (node.data('expanded') == true)
+          return;
         var title = node._private.data.title;
         var parentId = node._private.data.parentId;
         if (parentId != undefined) {
@@ -86,14 +105,20 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
           var newPos = radialservice.moveNodeAlongDiameter(node.position(), parentPos, radius);
           //console.log(newPos);
           node.position(newPos);
+          var edge = cy.elements("edge[source=\"" + parent.id() + "\"][target=\"" + node.id() + "\"]")[0];
+          edge.style({
+            'width': 8
+          });
         }
         var pos = node.position();
+        node.data('expanded', true);
         WikiService.getSubcats(title).done(function(data) {
           radialservice.addSubcatsToGraph(data, node, radius);
 
         });
 
       });
+
 
       cy.on('drag', 'node', function(event) {
         var node = event.target;
