@@ -54,7 +54,7 @@ define(function(){
            return newPos;
         };
 
-   var addSubcatsToGraph = function(data,parent,radius){
+   var addNodesToGraph = function(data,parent,radius,subcats=true){
       var members = data.query.categorymembers;
       var parentPos = parent.position();
       var positions = generatePositions(parentPos.x,parentPos.y,members.length,radius);
@@ -62,7 +62,9 @@ define(function(){
       for(var i=0;i<members.length;i++){
         var id = members[i]['pageid'];
         var nodeExists = cy.$('#'+id).length>0;
-        var title = members[i]['title'].substring(9);
+        var title = members[i]['title'];
+        if(subcats)
+          title = title.substring(9);
         var node = {
           group:'nodes',
           data:{
@@ -73,6 +75,11 @@ define(function(){
           position:positions[i]
 
         };
+        if(subcats)
+          node.data.color = COLORS.SUBCAT;
+        else {
+          node.data.color = COLORS.ARTICLE;
+        }
       //  console.log(node);
         var edge = {
           group:'edges',
@@ -87,9 +94,11 @@ define(function(){
       }
       cy.add(elements);
    }
+
+
   return {
     generatePositions:generatePositions,
     moveNodeAlongDiameter:moveNodeAlongDiameter,
-    addSubcatsToGraph:addSubcatsToGraph
+    addNodesToGraph:addNodesToGraph
   }
 })

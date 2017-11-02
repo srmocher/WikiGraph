@@ -1,5 +1,5 @@
 define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radialservice', 'search', 'cytoscape-qtip'],
-  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, qtip) {
+  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, cyqtip) {
 
     $(function() {
 
@@ -7,13 +7,14 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       var edges = [];
 
       //colors to identify nodes - article or subcat
-      var COLORS = {
+      window.COLORS = {
         ARTICLE: 0,
         SUBCAT: 1
       }
 
       //Register panzoom extension
       panzoom(cytoscape, $);
+      cyqtip(cytoscape, $);
 
       var rootPos = {
         x: 300,
@@ -25,10 +26,10 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         data: {
           id: 692915,
           title: 'Astronomy',
-          expanded: false
+          expanded: false,
+          color: COLORS.SUBCAT,
         },
         position: rootPos,
-        color: COLORS.ARTICLE,
         parentId: null
       };
       var radius = 200;
@@ -78,27 +79,33 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       cy.style().selector('node')
         .style({
           'width': function(ele) {
-            if (ele.degree() == 0)
-              return 35;
             if (ele.degree() < 5)
-              return 15 * ele.degree();
+              return 25;
+
             return 2.5 * ele.degree();
           },
           'height': function(ele) {
-            if (ele.degree() == 0)
-              return 35;
             if (ele.degree() < 5)
-              return 15 * ele.degree();
+              return 25;
+
             return 2.5 * ele.degree();
           }
         }).update();
-      cy.on('mousedown', 'node', function(event) {
-        cy.zoomingEnabled(true);
-        var node = event.target;
+
+      cy.style().selector("node[color=0]").style({
+        "background-color": "#90EE90"
+      }).update();
+
+      cy.style().selector("node[color=1]").style({
+        "background-color": "#87CEEB",
+      }).update();
+
+      var expandNode = function(node, subcats = true) {
+
         if (node.data('expanded') == true)
           return;
-        var title = node._private.data.title;
-        var parentId = node._private.data.parentId;
+        var title = node.data('title');
+        var parentId = node.data('parentId');
         if (parentId != undefined) {
           var parent = cy.elements("#" + parentId)[0];
           var parentPos = parent.position();
@@ -107,19 +114,77 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
           node.position(newPos);
           var edge = cy.elements("edge[source=\"" + parent.id() + "\"][target=\"" + node.id() + "\"]")[0];
           edge.style({
-            'width': 8
+            'width': 4
           });
         }
         var pos = node.position();
         node.data('expanded', true);
-        WikiService.getSubcats(title).done(function(data) {
-          radialservice.addSubcatsToGraph(data, node, radius);
+        if (subcats == true) {
+          WikiService.getSubcats(title).done(function(data) {
+            //  console.log(data);
+            radialservice.addNodesToGraph(data, node, radius);
 
-        });
+          });
+        } else {
+          WikiService.getArticles(title).done(function(data) {
+            radialservice.addNodesToGraph(data, node, radius, false);
+          })
+        }
+      }
 
+      cy.on('click', 'node', function(event) {
+        //  cy.zoomingEnabled(true);
+
+        var node = event.target;
+        if (node.data('color') == COLORS.ARTICLE) {
+          var title = node.data('title');
+          title = title.split(' ').join('_');
+          window.open('https://en.wikipedia.org/wiki/' + title, '_blank');
+          return;
+        }
+        if (node.data('expanded') == true)
+          return;
+        expandNode(node);
+
+        //  cy.pan(node.position());
       });
 
+      cy.elements().qtip({
+        content: {
+          text: function(event, api) {
+            var node = event.target;
+            var title = node.data('title');
+            title = title.split(' ').join('_');
+            $.ajax("https://en.wikipedia.org/w/api.php?action=parse&page=" + title + "&prop=text&section=0").then(function(content) {
+              var text = content.parse.text;
+              api.set('content.text', text);
+            });
+            return 'Loading...';
+          }
+        },
+        style: 'qtip-wiki',
+        position: {
+          my: 'top center',
+          at: 'bottom center'
+        }
+      });
 
+      cy.on('ready', function(event) {
+        var node = cy.$('#692915')[0];
+        //expandNode(node);
+        cy.zoom({
+          level: 1.0, // the zoom level
+          position: rootNode.position
+        });
+      });
+
+      cy.on('cxttapstart', 'node', function(event) {
+        var node = event.target;
+        if (node.data('expanded') == true)
+          return;
+        expandNode(node, false);
+
+      });
       cy.on('drag', 'node', function(event) {
         var node = event.target;
         var degree = node.degree();

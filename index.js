@@ -15,6 +15,7 @@ requirejs.config({
         radialservice:'scripts/services/radialservice',
         search:'node_modules/searchjs/lib/searchjs',
         'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip',
+        'qtip':'node_modules/qtip2/dist/jquery.qtip',
         'lerp':'node_modules/lerp/index'
     }
 });
