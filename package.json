@@ -10,6 +10,7 @@
     "cytoscape": "^3.2.5",
     "cytoscape-panzoom": "^2.5.2",
     "cytoscape-qtip": "^2.7.1",
+    "cytoscape.js-undo-redo": "^1.0.1",
     "jquery": "^3.2.1",
     "lerp": "^1.0.3",
     "requirejs": "^2.3.5",

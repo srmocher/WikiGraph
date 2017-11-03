@@ -14,9 +14,10 @@ requirejs.config({
         'cytoscape-panzoom':'node_modules/cytoscape-panzoom/cytoscape-panzoom',
         radialservice:'scripts/services/radialservice',
         search:'node_modules/searchjs/lib/searchjs',
-        'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip',
         'qtip':'node_modules/qtip2/dist/jquery.qtip',
-        'lerp':'node_modules/lerp/index'
+        'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip',        
+        'lerp':'node_modules/lerp/index',
+        'cytoscape.js-undo-redo':'node_modules/cytoscape.js-undo-redo/cytoscape-undo-redo'
     }
 });
 

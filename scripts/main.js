@@ -1,5 +1,5 @@
-define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radialservice', 'search', 'cytoscape-qtip'],
-  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, cyqtip) {
+define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radialservice', 'search', 'qtip', 'cytoscape-qtip', 'cytoscape.js-undo-redo'],
+  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, qtip, cyqtip, undoRedo) {
 
     $(function() {
 
@@ -15,6 +15,7 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       //Register panzoom extension
       panzoom(cytoscape, $);
       cyqtip(cytoscape, $);
+      undoRedo(cytoscape);
 
       var rootPos = {
         x: 300,
@@ -149,26 +150,19 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         //  cy.pan(node.position());
       });
 
-      cy.elements().qtip({
-        content: {
-          text: function(event, api) {
-            var node = event.target;
-            var title = node.data('title');
-            title = title.split(' ').join('_');
-            $.ajax("https://en.wikipedia.org/w/api.php?action=parse&page=" + title + "&prop=text&section=0").then(function(content) {
-              var text = content.parse.text;
-              api.set('content.text', text);
-            });
-            return 'Loading...';
-          }
-        },
-        style: 'qtip-wiki',
-        position: {
-          my: 'top center',
-          at: 'bottom center'
-        }
-      });
 
+
+      var options = {
+        isDebug: false, // Debug mode for console messages
+        actions: {}, // actions to be added
+        undoableDrag: true, // Whether dragging nodes are undoable can be a function as well
+        stackSizeLimit: undefined, // Size limit of undo stack, note that the size of redo stack cannot exceed size of undo stack
+        ready: function() { // callback when undo-redo is ready
+
+        }
+      }
+
+      var ur = cy.undoRedo(options); // Can also be set whenever wanted.
       cy.on('ready', function(event) {
         var node = cy.$('#692915')[0];
         //expandNode(node);
@@ -176,8 +170,47 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
           level: 1.0, // the zoom level
           position: rootNode.position
         });
+
+
       });
 
+      cy.on('mouseover', 'node', function(event) {
+        var node = event.target;
+        if (node.data('color') == COLORS.SUBCAT)
+          return;
+        node.qtip({
+          overwrite: false, // Make sure the tooltip won't be overridden once created
+          content: {
+            text:function(event,api){
+              var title = node.data('title');
+              title = title.split(" ").join('_');
+              $.ajax('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&pageids='+node.id()+'&origin=*').done(function(data){
+                var id = node.id();
+                var extract = data.query.pages[id].extract;
+                api.set('content.text',extract);
+              });
+              return 'Loading...';
+            }
+          },
+          show: {
+            ready: true // Show the tooltip immediately upon creation
+          },
+          hide:{
+            event:'mouseout'
+          },
+          position: {
+            my: 'top center',
+            at: 'bottom center'
+          },
+          style: {
+            classes: 'qtip-bootstrap',
+            tip: {
+              width: 16,
+              height: 8
+            }
+          }
+        }, event); // Pass through our live event to qTip
+      });
       cy.on('cxttapstart', 'node', function(event) {
         var node = event.target;
         if (node.data('expanded') == true)
