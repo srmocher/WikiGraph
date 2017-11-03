@@ -176,18 +176,41 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
 
       cy.on('mouseover', 'node', function(event) {
         var node = event.target;
-        if (node.data('color') == COLORS.SUBCAT)
+        if (node.data('color') == COLORS.SUBCAT) {
+          node.qtip({
+            overwrite: false,
+            content: node.data('title'),
+            show: {
+              ready: true
+            },
+            hide: {
+              event: 'mouseout'
+            },
+            position: {
+              my: 'top center',
+              at: 'bottom center'
+            },
+            style: {
+              classes: 'qtip-wiki',
+              tip: {
+                width: 16,
+                height: 8
+              }
+            },
+            event
+          });
           return;
+        }
         node.qtip({
           overwrite: false, // Make sure the tooltip won't be overridden once created
           content: {
-            text:function(event,api){
+            text: function(event, api) {
               var title = node.data('title');
               title = title.split(" ").join('_');
-              $.ajax('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&pageids='+node.id()+'&origin=*').done(function(data){
+              $.ajax('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&pageids=' + node.id() + '&origin=*').done(function(data) {
                 var id = node.id();
                 var extract = data.query.pages[id].extract;
-                api.set('content.text',extract);
+                api.set('content.text', extract);
               });
               return 'Loading...';
             }
@@ -195,15 +218,15 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
           show: {
             ready: true // Show the tooltip immediately upon creation
           },
-          hide:{
-            event:'mouseout'
+          hide: {
+            event: 'mouseout'
           },
           position: {
             my: 'top center',
             at: 'bottom center'
           },
           style: {
-            classes: 'qtip-bootstrap',
+            classes: 'qtip-wiki',
             tip: {
               width: 16,
               height: 8
