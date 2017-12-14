@@ -26,6 +26,16 @@ define(function(){
             return positions;
    };
 
+   function guid() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+      s4() + '-' + s4() + s4() + s4();
+  }
+
    var moveNodeAlongDiameter = function (point,parentPos,radius) {
             var x  = point.x;
             var slope = (point.y - parentPos.y)/(point.x - parentPos.x);
@@ -56,9 +66,12 @@ define(function(){
 
    var addNodesToGraph = function(data,parent,radius,subcats=true){
       var members = data.query.categorymembers;
+      var continueUrl = data.continue!==undefined?data.continue.cmcontinue:null;
       var parentPos = parent.position();
-      var positions = generatePositions(parentPos.x,parentPos.y,members.length,radius);
-      var elements = [];
+      var positions = generatePositions(parentPos.x,parentPos.y,members.length+1,radius);
+      let elements = [];
+      var nodes = [];
+      var edges = [];
       for(var i=0;i<members.length;i++){
         var id = members[i]['pageid'];
         var nodeExists = cy.$('#'+id).length>0;
@@ -70,7 +83,9 @@ define(function(){
           data:{
             id:id,
             title:title,
-            parentId:parent.id()
+            parentId:parent.id(),
+            continueUrl:null,
+            expanded:false
           },
           position:positions[i]
 
@@ -88,11 +103,55 @@ define(function(){
             target:id
           }
         }
-        if(!nodeExists)
+        if(!nodeExists){
           elements.push(node);
+          nodes.push(node);
+        }
         elements.push(edge);
+        edges.push(edge);
+      }
+      if(continueUrl !== null){
+        console.log(continueUrl);
+        var targetId =  guid()
+        var extraEdge = {
+          group:'edges',
+          data:{
+            source:parent.id(),
+            target:targetId
+          }
+        };
+
+        var extraNode = {
+          group:'nodes',
+          data:{
+            id: targetId,
+            title:'...',
+            continueUrl: continueUrl,
+            color:subcats?COLORS.ELLIPSIS_CAT:COLORS.ELLIPSIS_ARTICLE,
+            parentId:parent.id(),
+            expanded:false
+          },
+          position:positions[positions.length-1]
+        }
+        console.log(extraNode.data.continueUrl);
+        elements.push(extraNode);
+        elements.push(extraEdge);
+        nodes.push(extraNode);
       }
       cy.add(elements);
+
+      
+      let temp = [];
+      temp.push(parent);
+      console.log(elements.length);
+       cy.animate({
+         zoom:0.9,
+         center:{
+             eles:nodes
+         },        
+         duration: 1000,        
+         easing:'spring(600,20)'
+       });
    }
 
 

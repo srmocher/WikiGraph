@@ -17,7 +17,15 @@ requirejs.config({
         'qtip':'node_modules/qtip2/dist/jquery.qtip',
         'cytoscape-qtip':'node_modules/cytoscape-qtip/cytoscape-qtip',        
         'lerp':'node_modules/lerp/index',
-        'cytoscape.js-undo-redo':'node_modules/cytoscape.js-undo-redo/cytoscape-undo-redo'
+        'cytoscape.js-undo-redo':'node_modules/cytoscape.js-undo-redo/cytoscape-undo-redo',
+        'popper':'node_modules/popper.js/dist/umd/popper',
+        'bootstrap':'node_modules/bootstrap/dist/js/bootstrap',
+    },
+    shim:{
+        'bootstrap': {
+            deps: ['jquery'],
+            exports: '$'
+        }
     }
 });
 

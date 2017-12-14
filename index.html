@@ -9,13 +9,37 @@
     <link rel="stylesheet" href="node_modules/cytoscape-panzoom/font-awesome-4.0.3/css/font-awesome.css"/>
     <link rel="stylesheet" href="node_modules/cytoscape-panzoom/cytoscape.js-panzoom.css"/>
     <link rel="stylesheet" href="node_modules/qtip2/dist/jquery.qtip.css"/>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css"/>
     <!--[if lt IE 9]>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
     <![endif]-->
   </head>
 
   <body>
+
+   
+    <!-- Single button -->
+<div id="subjects" class="btn-group">
+  <button id="dropButton" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Astronomy <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="#">Astronomy</a></li>
+    <li><a href="#">Computer science</a></li>
+    <li><a href="#">Psychology</a></li>
+    <li><a href="#">Economics</a></li>
+    <li><a href="#">Religion</a></li>
+  </ul>
+</div>
     <script data-main="index" src="node_modules/requirejs/require.js"></script>
     <div id="cy"></div>
+    <div id="popover-content" class="hide">
+      <div id="popContent" class="form-group">
+          <label class="badge">Unique URL for saved graph.</label>
+          <input class="form-control" id="txtContent" type="text" readonly/>
+          
+      </div>
+  </div>
+  <button id="saveGraph" class='btn-primary' data-html='true' data-toggle='popover'>Save graph</button>  
   </body>
   </html>
