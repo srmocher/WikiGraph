@@ -15,7 +15,9 @@
     "lerp": "^1.0.3",
     "requirejs": "^2.3.5",
     "searchjs": "^0.11.0",
-    "stapes": "^1.0.0"
+    "stapes": "^1.0.0",
+    "bootstrap-dropselect": "1.1.4",
+    "popper.js": "1.12.9"
   },
   "scripts": {
     "start": "http-server"
