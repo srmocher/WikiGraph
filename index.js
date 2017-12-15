@@ -20,6 +20,9 @@ requirejs.config({
         'cytoscape.js-undo-redo':'node_modules/cytoscape.js-undo-redo/cytoscape-undo-redo',
         'popper':'node_modules/popper.js/dist/umd/popper',
         'bootstrap':'node_modules/bootstrap/dist/js/bootstrap',
+        
+        'cytoscape-dagre':'node_modules/cytoscape-dagre/cytoscape-dagre'
+        
     },
     shim:{
         'bootstrap': {
