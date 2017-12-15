@@ -17,3 +17,11 @@
   left:35px;
   position: absolute;
 }
+
+#cy2{
+  position: absolute;
+  top:50px;
+  right:50px;
+  width:200px;
+  height:90%;
+}
