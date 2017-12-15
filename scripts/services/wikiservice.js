@@ -27,7 +27,7 @@ define(['jquery'],function($){
     var getSavedGraph = function(urlId){
         return $.ajax({
             url:'http://wikigraphapi.azurewebsites.net/graph/'+urlId,
-            'type':GET
+            'type':"GET"
         });
     }
     return{

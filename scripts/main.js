@@ -1,5 +1,7 @@
-define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radialservice', 'search', 'qtip', 'cytoscape-qtip', 'cytoscape.js-undo-redo','bootstrap','popper'],
-  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, qtip, cyqtip, undoRedo,bootstrap,popper) {
+
+
+define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radialservice', 'search', 'qtip', 'cytoscape-qtip', 'cytoscape.js-undo-redo','bootstrap','popper','cytoscape-dagre'],
+  function($, cytoscape, Node, panzoom, WikiService, radialservice, s, qtip, cyqtip, undoRedo,bootstrap,popper,cydagre) {
 
     $(function() {
 
@@ -10,8 +12,50 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       console.log(params);
       if(params!==""){
         var id = params.split("=")[1];
+        console.log(id);
+        WikiService.getSavedGraph(id).then(function(data){
+          var eles = JSON.parse(data);
+          
+          var nodes = eles["nodes"];
+          var edges = eles["edges"];
+          console.log(nodes);
+          console.log(edges);
+          cy.remove(cy.elements());
+          for(let i=0;nodes[i]!==undefined;i++){
+              var n = {
+                group:'nodes',
+                data:{
+                  id:nodes[i].data.id,
+                  title:nodes[i].data.title,
+                  color:parseInt(nodes[i].data.color),
+                  expanded:nodes[i].data.expanded=='true',
+                  continueUrl:nodes[i].data.continueUrl,
+                  parentId:nodes[i].data.parentId
+                },
+                position:{
+                  x:parseFloat(nodes[i].position.x),
+                  y:parseFloat(nodes[i].position.y)
 
-      }
+                }
+              }
+              cy.add(n);
+          }
+
+          for(let i=0;edges[i]!==undefined;i++){
+            var e={
+              group:'edges',
+              data:{
+                source:edges[i].data.source,
+                target:edges[i].data.target
+              }
+            };
+
+            cy.add(e);
+          }
+         styleGraph();
+      });
+    
+    }
 
       //colors to identify nodes - article or subcat
       window.COLORS = {
@@ -26,10 +70,15 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
 
      $('#saveGraph').click(function(e){
        var graphJSON = cy.json();
+       console.log(graphJSON);
        WikiService.saveGraph(graphJSON).then(function(data){
          console.log(data);
-         
-          var fullUrl = window.location.href +"?id="+data['urlId'];
+         var url = window.location.href;
+         var fullUrl = "";
+         if(!url.includes("id="))
+           fullUrl = window.location.href +"?id="+data['urlId'];
+        else
+          fullUrl = url.substring(0,url.indexOf('?')) + "?id="+data['urlId'];
           console.log(fullUrl);
          
           $('#saveGraph').popover({
@@ -58,7 +107,7 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       panzoom(cytoscape, $);
       cyqtip(cytoscape, $);
       undoRedo(cytoscape);
-
+      
       var rootPos = {
         x: 300,
         y: 400
@@ -91,6 +140,8 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         }
       });
 
+      
+
       var defaults = {
         zoomFactor: 0.05, // zoom factor per zoom tick
         zoomDelay: 45, // how many ms between zoom ticks
@@ -117,10 +168,8 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         resetIcon: 'fa fa-expand'
       };
 
-      cy.panzoom(defaults);
-      window.cy = cy;
-
-      cy.style().selector('node')
+      var styleGraph = function(){
+        cy.style().selector('node')
         .style({
           'width': function(ele) {
             if (ele.degree() < 5)
@@ -151,8 +200,13 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
       cy.style().selector("node[color=3]").style({
         "background-color":"#ffff00"
       })
+      }
+      cy.panzoom(defaults);
+      window.cy = cy;
 
+      
 
+      styleGraph();
       var collapseNode = function(node){
         if(node === undefined)
           return;
@@ -306,7 +360,17 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         let temp = node;
         console.log(node.style('opacity'));
         cy.elements().style('opacity',0.2);
+        var pathElements = [];
         while(temp!=undefined){
+
+            var pathNode = {
+              group:'nodes',
+              data:{
+                id : temp.id(),
+                title:temp.data('title')
+              }
+            };
+            pathElements.push(pathNode)
             temp.style('opacity',1);
             temp.style('font-weight','bolder');
             let edges = cy.elements('edge[target=\"'+temp.id()+'\"]');
@@ -314,8 +378,43 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
             let parentId = temp.data('parentId');
             
             let parent = cy.$('#'+parentId)[0];
+            if(parent!==undefined){
+              var pathEdge = {
+                group:'edges',
+                data:{
+                  source:parent.id(),
+                  target:temp.id()
+                }
+              };
+              pathElements.push(pathEdge);
+            }
             temp = parent;
-        }
+          }
+          var x = 200;
+          var y = 800;
+
+          for(let i=0;i<pathElements.length;i++){
+              if(pathElements[i].group == 'nodes'){
+                pathElements[i].position = {
+                  x:x,
+                  y:y
+                } 
+                y = y- 100;
+              }
+              
+          }
+          window.cy2 = cytoscape({
+            container: $('#cy2'),
+            elements: pathElements,
+            style: $.getJSON("style.json").done(function(data) {
+              return data;
+            }),
+            layout:{
+              name:'preset'
+            }
+          });
+          cy2.fit();
+          $('#cy2').css('border','1px solid black');
       }
       var hoverTimeout;
       cy.on('mouseout','node',function(event){
@@ -324,7 +423,8 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         node.trigger('hovercancel');
         cy.elements().style('opacity',1);
         cy.elements().removeStyle('font-weight');
-
+        cy2.remove(cy2.elements());
+        $('#cy2').css('border','');
       })
       cy.on('mouseover', 'node', function(event) {
         var node = event.target;
