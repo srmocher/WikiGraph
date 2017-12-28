@@ -502,6 +502,7 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
         expandNode(node, false);
 
       });
+
       cy.on('drag', 'node', function(event) {
         var node = event.target;
         var degree = node.degree();
@@ -519,6 +520,18 @@ define(['jquery', 'cytoscape', 'Node', 'cytoscape-panzoom', 'WikiService', 'radi
           }
         }
       });
+      var elementsCount = cy.elements().length;
+      var checkAndSaveGraphToServer = function(){
+          if(elementsCount - cy.elements().length!=0){
+             elementsCount = cy.elements().length;
+             var elements = cy.json().elements;
+             WikiService.saveFullGraph(elements).then(function(data){
+               console.log(data);
+             })
+          }
+      };
+
+      setInterval(checkAndSaveGraphToServer,20000);
     });
 
 
