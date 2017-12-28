@@ -29,6 +29,14 @@ define(['jquery'],function($){
             url:'http://wikigraphapi.azurewebsites.net/graph/'+urlId,
             'type':"GET"
         });
+    };
+
+    var saveFullGraph = function(elements){
+        return $.ajax({
+            type: "POST",
+            url: 'http://solrgraphapi.azurewebsites.net/graph/save',
+            data: elements
+          });
     }
     return{
         getSubcats:getSubcats,
@@ -36,6 +44,7 @@ define(['jquery'],function($){
         getMore:getMore,
         getMorePages:getMorePages,
         saveGraph:saveGraph,
-        getSavedGraph:getSavedGraph
+        getSavedGraph:getSavedGraph,
+        saveFullGraph:saveFullGraph
     };
 })
